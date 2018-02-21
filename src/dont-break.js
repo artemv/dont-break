@@ -30,6 +30,7 @@ var DEFAULT_TEST_COMMAND = 'npm test'
 var INSTALL_TIMEOUT_SECONDS = 3 * 60
 
 var install = require('./install-dependency')
+var runInFolder = require('./run-in-folder')
 
 function readJSON (filename) {
   la(exists(filename), 'cannot find JSON file to load', filename)
@@ -124,25 +125,6 @@ function testInFolder (testCommand, folder) {
     missing: 'missing test command',
     success: 'tests work',
     failure: 'tests did not work'
-  })
-}
-
-function runInFolder (folder, testCommand, messages) {
-  la(check.unemptyString(testCommand), messages.missing, testCommand)
-  la(check.unemptyString(folder), 'expected folder', folder)
-  var cwd = process.cwd()
-  process.chdir(folder)
-  return npmTest(testCommand).then(function () {
-    console.log(`${messages.success} in ${folder}`)
-    return folder
-  })
-  .catch(function (errors) {
-    console.error(`${messages.failure} in ${folder}`)
-    console.error('code', errors.code)
-    throw errors
-  })
-  .finally(function () {
-    process.chdir(cwd)
   })
 }
 
@@ -249,7 +231,11 @@ function testDependent (options, dependent, config) {
       return toFolder
     } else {
       // it was NPM install
-      return join(toFolder, 'lib', 'node_modules', moduleName)
+      var parts = [toFolder]
+      if (!dependentInstall) {
+        parts.push('lib')
+      }
+      return join.apply(null, parts.concat(['node_modules', moduleName]))
     }
   }
 
