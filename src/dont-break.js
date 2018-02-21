@@ -235,6 +235,7 @@ function testDependent (options, dependent, config) {
   modulePostinstallCommand = dependent.postinstall
   testWithPreviousVersion = dependent.pretest
   currentModuleInstallMethod = dependent.currentModuleInstall
+  var dependentInstall = dependent.install
   dependent = dependent.name
 
   la(check.unemptyString(dependent), 'invalid dependent', dependent)
@@ -271,7 +272,8 @@ function testDependent (options, dependent, config) {
 
   var installOptions = {
     name: moduleName,
-    prefix: toFolder
+    prefix: toFolder,
+    install: dependentInstall
   }
 
   var postInstallModuleInFolder = _.partial(postInstallInFolder, modulePostinstallCommand)

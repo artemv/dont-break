@@ -12,6 +12,7 @@ var chdir = require('chdir-promise')
 var npmInstall = require('npm-utils').install
 la(check.fn(npmInstall), 'install should be a function', npmInstall)
 var cloneRepo = require('ggit').cloneRepo
+var npmTest = require('npm-utils').test
 
 function removeFolder (folder) {
   if (exists(folder)) {
@@ -36,7 +37,12 @@ function install (options) {
     })
     .finally(chdir.from)
   } else {
-    return npmInstall(options)
+    if (options.install) {
+      console.log('running "%s" install command in %s', options.install, process.cwd())
+      return npmTest(options.install)
+    } else {
+      return npmInstall(options)
+    }
   }
 }
 
